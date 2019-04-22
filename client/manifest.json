@@ -1,0 +1,20 @@
+{
+  "short_name": "Tunnlare",
+  "name": "Tunnel Räknaren",
+  "icons": [
+    {
+      "src": "/images/icon_192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/images/icon_512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffdc00",
+  "display": "standalone",
+  "theme_color": "#ffdc00"
+}
