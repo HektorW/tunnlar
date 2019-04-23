@@ -100,7 +100,11 @@ h1 {
   background-color: #ff4136;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 350px) {
+  h1 {
+    font-size: 2rem;
+  }
+  
   .user__actions {
     flex-direction: column;
   }
@@ -109,11 +113,5 @@ h1 {
     margin-bottom: 0.75rem;
     margin-left: 0;
     order: -1;
-  }
-}
-
-@media (max-width: 350px) {
-  h1 {
-    font-size: 2rem;
   }
 }
