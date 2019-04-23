@@ -1,16 +1,13 @@
 body {
   background-color: #ffdc00;
-  /* background-image: url(/background.jpg);
-  background-size: 200px;
-  background-repeat: repeat; */
-  color: #fff;
-  font-family: 'Open sans', sans-serif;
+  color: #001f3f;
+  font-family: 'Press Start 2P', sans-serif;
   margin: 0;
 }
 
 header,
 main {
-  padding: 1rem;
+  padding: 1rem 1.25rem;
 }
 
 main,
@@ -20,18 +17,21 @@ h1 {
 }
 
 header {
-  background-color: #001f3f;
-  color: #fff;
+  padding-top: 1.5rem;
 }
 
 .user {
   align-items: center;
   background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  color: #000;
+  box-shadow: -10px 12px 0 #001f3f;
+  color: #001f3f;
   display: flex;
-  margin-top: 1rem;
-  padding: 1rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem 1rem;
+}
+
+.user:first-child {
+  margin-top: 0;
 }
 
 .user__name {
@@ -41,11 +41,12 @@ header {
 .user__tunnels {
   align-items: center;
   display: flex;
+  margin-bottom: 0;
 }
 
 .user__tunnels-value {
   font-size: 2rem;
-  margin-left: 0.5rem;
+  margin-left: 0.25rem;
 }
 
 .user__actions {
@@ -63,14 +64,35 @@ header {
   font-size: 2rem;
   height: 50px;
   justify-content: center;
+  outline: none;
+  transform: scale(1);
+  transition: transform 0.1s;
   width: 50px;
+}
+
+.user__actions-add:active,
+.user__actions-remove:active {
+  transform: scale(0.9);
+  transition: 0s;
 }
 
 .user__actions-add {
   background-color: #2ecc40;
-  margin-left: 1rem;
+  margin-left: 0.75rem;
 }
 
 .user__actions-remove {
   background-color: #ff4136;
+}
+
+@media (max-width: 400px) {
+  .user__actions {
+    flex-direction: column;
+  }
+
+  .user__actions-add {
+    margin-bottom: 0.75rem;
+    margin-left: 0;
+    order: -1;
+  }
 }
