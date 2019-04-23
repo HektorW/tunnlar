@@ -1,26 +1,22 @@
 body {
   background-color: #ffdc00;
   color: #001f3f;
+  display: flex;
+  flex-direction: column;
   font-family: 'Press Start 2P', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  justify-content: center;
   margin: 0;
+  min-height: 100vh;
+  padding: 2rem 2rem 0;
   text-rendering: optimizeLegibility;
 }
 
-header,
-main {
-  padding: 1rem 1.25rem;
-}
-
 main,
-h1 {
+header {
   margin: 0 auto;
   max-width: 400px;
-}
-
-header {
-  padding-top: 1.5rem;
 }
 
 h1 {
@@ -28,7 +24,13 @@ h1 {
   font-size: 2.5rem;
   font-weight: 400;
   letter-spacing: 1px;
+  margin: 0;
   text-shadow: -4px 5px #001f3f;
+}
+
+main {
+  margin-top: 2rem;
+  padding-bottom: 4rem;
 }
 
 .user {
@@ -38,7 +40,7 @@ h1 {
   color: #001f3f;
   display: flex;
   margin-top: 1.5rem;
-  padding: 1.5rem 1rem;
+  padding: 1.25rem;
 }
 
 .user:first-child {
