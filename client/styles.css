@@ -28,8 +28,9 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+header,
 main,
-header {
+footer {
   margin: 0 auto;
   max-width: 400px;
   width: 100%;
@@ -46,7 +47,13 @@ h1 {
 
 main {
   margin-top: 2rem;
-  padding-bottom: 2rem;
+}
+
+footer {
+  color: #fff;
+  font-size: 12px;
+  margin-top: 2rem;
+  text-shadow: -1.5px 2px #001f3f;
 }
 
 .user {

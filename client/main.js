@@ -1,4 +1,5 @@
-let userEls = document.querySelectorAll('[data-user]')
+const userEls = document.querySelectorAll('[data-user]')
+const timeLeftEl = document.querySelector('[data-time-left]')
 
 const getUserElId = userEl => parseInt(userEl.getAttribute('data-user'), 10)
 const getUserCountEl = userEl => userEl.querySelector('[data-count]')
@@ -96,7 +97,17 @@ function pollForServerUpdates() {
   setInterval(fetchLatestValues, intervalSeconds * 1000)
 }
 
+function renderTimeLeft() {
+  const endDate = new Date('2019-8-30')
+  const timeLeft = endDate - new Date()
+
+  const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
+
+  timeLeftEl.innerHTML = `${daysLeft} dagar kvar`
+}
+
 setupEventHandlers()
 fetchLatestValues()
 pollForServerUpdates()
 registerServiceWorker()
+renderTimeLeft()
