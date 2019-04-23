@@ -98,6 +98,7 @@ main {
   height: 50px;
   justify-content: center;
   outline: none;
+  position: relative;
   transform: scale(1);
   transition: transform 0.1s;
   width: 50px;
@@ -107,6 +108,22 @@ main {
 .user__actions-remove:active {
   transform: scale(0.9);
   transition: 0s;
+}
+
+.user__actions-add::after,
+.user__actions-add::before,
+.user__actions-remove::before {
+  background-color: #fff;
+  content: '';
+  height: 3px;
+  left: 32.5%;
+  position: absolute;
+  top: calc(50% - 1.5px);
+  width: 35%;
+}
+
+.user__actions-add::after {
+  transform: rotate(90deg);
 }
 
 .user__actions-add {
