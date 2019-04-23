@@ -4,12 +4,17 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   background: linear-gradient(
     to bottom,
     hsl(52, 100%, 50%),
-    hsla(43, 100%, 55%, 1)
+    hsla(42, 100%, 55%, 1)
   );
+  background-attachment: fixed;
   color: #001f3f;
   display: flex;
   flex-direction: column;
@@ -18,7 +23,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   justify-content: center;
   margin: 0;
-  min-height: 100vh;
+  min-height: 100%;
   padding: 2rem;
   text-rendering: optimizeLegibility;
 }
