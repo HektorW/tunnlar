@@ -1,3 +1,9 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
 body {
   background-color: #ffdc00;
   color: #001f3f;
@@ -107,7 +113,7 @@ main {
   h1 {
     font-size: 2rem;
   }
-  
+
   .user__actions {
     flex-direction: column;
   }
