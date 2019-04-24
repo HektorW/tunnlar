@@ -3,7 +3,8 @@ const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
 const koaHandlebars = require('koa-handlebars')
 const serve = require('koa-static')
-const { getAll, setTunnelCount } = require('./db/models/user')
+const { getAllUsers, setTunnelCount } = require('./db/models/user')
+const { getAllTunnels } = require('./db/models/tunnel')
 
 const app = new Koa()
 
@@ -40,7 +41,13 @@ app.use(async (ctx, next) => {
 
 app.use(async (ctx, next) => {
   if (ctx.method === 'GET' && ctx.path === '/api/get-all') {
-    ctx.body = await getAll()
+    const allUsers = await getAllUsers()
+    const allTunnels = await getAllTunnels()
+
+    ctx.body = allUsers.map(user => ({
+      ...user,
+      tunnels: allTunnels.filter(tunnel => tunnel.by === user.id)
+    }))
   } else {
     return next()
   }
@@ -48,7 +55,7 @@ app.use(async (ctx, next) => {
 
 app.use(async (ctx, next) => {
   if (ctx.method === 'GET' && ctx.path === '/') {
-    const users = await getAll()
+    const users = await getAllUsers()
     await ctx.render('index', {
       users
     })

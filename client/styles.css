@@ -64,6 +64,12 @@ footer {
   display: flex;
   margin-top: 1.5rem;
   padding: 1.25rem 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.user.drag-target {
+  z-index: 0;
 }
 
 .user:first-child {
@@ -89,9 +95,33 @@ footer {
   margin-left: 0.25rem;
 }
 
+.user__legs {
+  display: none;
+  image-rendering: pixelated;
+  position: absolute;
+  right: 0;
+  top: -39px;
+  width: 170px;
+}
+
+.drag-target .user__legs {
+  display: block;
+}
+
 .user__actions {
   display: flex;
   margin-left: auto;
+}
+
+.user__actions-ball {
+  background-color: #85144b;
+  border-radius: 50%;
+  height: 60px;
+  width: 60px;
+}
+
+.drag-target .user__actions-ball {
+  display: none;
 }
 
 .user__actions-add,

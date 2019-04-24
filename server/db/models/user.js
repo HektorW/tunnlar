@@ -16,7 +16,7 @@ const { camelCaseModel, camelCaseAll } = createModelCamelCaser(
 
 exports.setup = () => createTable(db, tableName, tableColumnDefinitions)
 
-exports.getAll = () => {
+exports.getAllUsers = () => {
   const query = `SELECT * from ${tableName} ORDER BY name`
   return db.all(query).then(camelCaseAll)
 }

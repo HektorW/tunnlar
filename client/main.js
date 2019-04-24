@@ -1,10 +1,12 @@
-const userEls = document.querySelectorAll('[data-user]')
+const userEls = Array.from(document.querySelectorAll('[data-user]'))
 const timeLeftEl = document.querySelector('[data-time-left]')
 
 const getUserElId = userEl => parseInt(userEl.getAttribute('data-user'), 10)
 const getUserCountEl = userEl => userEl.querySelector('[data-count]')
 const getUserTunnelCount = userEl =>
   parseInt(getUserCountEl(userEl).innerHTML, 10)
+
+let requestChain = Promise.resolve()
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return
@@ -25,10 +27,55 @@ function registerServiceWorker() {
 
 function setupEventHandlers() {
   userEls.forEach(userEl => {
+    const otherUserEls = userEls.filter(other => other !== userEl)
+    const dragBall = userEl.querySelector('[data-ball]')
+
+    let dragStartTouch = null
+
+    const onTouchStart = event => {
+      dragStartTouch = event.touches ? event.touches[0] : event
+
+      otherUserEls.forEach(otherEl => otherEl.classList.add('drag-target'))
+
+      window.addEventListener('touchmove', onTouchMove, { passive: false })
+      window.addEventListener('touchend', onTouchEnd)
+      window.addEventListener('touchcancel', onTouchEnd)
+      window.addEventListener('mousemove', onTouchMove)
+      window.addEventListener('mouseup', onTouchEnd)
+    }
+
+    const onTouchMove = event => {
+      if (event.cancelable) {
+        event.preventDefault()
+      }
+
+      const moveTouch = event.touches ? event.touches[0] : event
+
+      const moveX = moveTouch.pageX - dragStartTouch.pageX
+      const moveY = moveTouch.pageY - dragStartTouch.pageY
+
+      dragBall.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`
+    }
+
+    const onTouchEnd = () => {
+      dragBall.style.transform = ''
+
+      otherUserEls.forEach(otherEl => otherEl.classList.remove('drag-target'))
+
+      window.removeEventListener('touchmove', onTouchMove, { passive: false })
+      window.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('touchcancel', onTouchEnd)
+      window.removeEventListener('mousemove', onTouchMove)
+      window.removeEventListener('mouseup', onTouchEnd)
+    }
+
+    dragBall.addEventListener('touchstart', onTouchStart)
+    dragBall.addEventListener('mousedown', onTouchStart)
+  })
+
+  /* userEls.forEach(userEl => {
     const userId = getUserElId(userEl)
     const countEl = getUserCountEl(userEl)
-
-    let requestChain = Promise.resolve()
 
     const renderCount = count => (countEl.innerHTML = count)
 
@@ -57,6 +104,7 @@ function setupEventHandlers() {
         } catch (error) {
           renderCount(countBeforeRequest)
           requestChain = Promise.resolve()
+          fetchLatestValues()
           throw error // Break current request chain
         }
       })
@@ -68,16 +116,24 @@ function setupEventHandlers() {
     userEl.querySelector('[data-add]').addEventListener('click', () => {
       updateCount(1)
     })
-  })
+  }) */
 }
 
-async function fetchLatestValues() {
-  const response = await fetch('/api/get-all')
-  if (!response.ok) return
+let fetchLatestTimeoutId = null
+function fetchLatestValues() {
+  clearTimeout(fetchLatestTimeoutId)
 
-  const userRows = await response.json()
+  requestChain.then(async () => {
+    const response = await fetch('/api/get-all')
+    if (!response.ok) return
 
-  updateUserCountsFromServer(userRows)
+    const userRows = await response.json()
+
+    updateUserCountsFromServer(userRows)
+
+    const intervalSeconds = 10
+    fetchLatestTimeoutId = setTimeout(fetchLatestValues, intervalSeconds * 1000)
+  })
 }
 
 function updateUserCountsFromServer(userRows) {
@@ -92,11 +148,6 @@ function updateUserCountsFromServer(userRows) {
   })
 }
 
-function pollForServerUpdates() {
-  const intervalSeconds = 10
-  setInterval(fetchLatestValues, intervalSeconds * 1000)
-}
-
 function renderTimeLeft() {
   const endDate = new Date('2019-8-30')
   const timeLeft = endDate - new Date()
@@ -108,6 +159,5 @@ function renderTimeLeft() {
 
 setupEventHandlers()
 fetchLatestValues()
-pollForServerUpdates()
 registerServiceWorker()
 renderTimeLeft()
