@@ -101,9 +101,30 @@ function renderTimeLeft() {
   const endDate = new Date('2019-8-30')
   const timeLeft = endDate - new Date()
 
-  const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
+  const secondsLeft = timeLeft / 1000
+  const minutesLeft = secondsLeft / 60
+  const hoursLeft = minutesLeft / 60
+  const daysLeft = hoursLeft / 24
 
-  timeLeftEl.innerHTML = `${daysLeft} dagar kvar`
+  const { floor } = Math
+  let value = floor(daysLeft)
+  let unit = 'dagar'
+  if (daysLeft < 1) {
+    setTimeout(renderTimeLeft, 1000)
+
+    value = floor(hoursLeft)
+    unit = 'timmar'
+  }
+  if (hoursLeft < 1) {
+    value = floor(minutesLeft)
+    unit = 'minuter'
+  }
+  if (minutesLeft < 1) {
+    value = floor(secondsLeft)
+    unit = 'sekunder'
+  }
+
+  timeLeftEl.innerHTML = `${value} ${unit} kvar`
 }
 
 setupEventHandlers()
