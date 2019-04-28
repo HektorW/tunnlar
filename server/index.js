@@ -3,8 +3,11 @@ const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
 const koaHandlebars = require('koa-handlebars')
 const serve = require('koa-static')
-const { getUser, getAllUsers, setTunnelCount } = require('./db/models/user')
+const config = require('../config')
+const sendTunnelNotifications = require('./push-notifications/sendTunnelNotifications')
+const { getUser, getAllUsers } = require('./db/models/user')
 const { getAllTunnels, addTunnel } = require('./db/models/tunnel')
+const { addPushSubscription } = require('./db/models/push-subscription')
 
 const getUsersAndTunnels = async () => {
   const [users, tunnels] = await Promise.all([getAllUsers(), getAllTunnels()])
@@ -35,26 +38,9 @@ app.use(
 
 app.use(bodyParser())
 
-// app.use(async (ctx, next) => {
-//   if (ctx.method === 'POST' && ctx.path === '/api/set-count') {
-//     const { userId, count } = ctx.request.body
-
-//     if (count < 0) {
-//       ctx.status = 400
-//       ctx.body = 'Invalid count'
-//       return
-//     }
-
-//     await setTunnelCount(userId, count)
-//     ctx.body = { success: true }
-//   } else {
-//     return next()
-//   }
-// })
-
 app.use(async (ctx, next) => {
   if (ctx.method === 'POST' && ctx.path === '/api/add-tunnel') {
-    const { byId, againstId, tunnelItem } = ctx.request.body
+    const { byId, againstId, tunnelItem, subscriptionId } = ctx.request.body
 
     const [byUser, againstUser] = await Promise.all([
       getUser(byId),
@@ -70,6 +56,13 @@ app.use(async (ctx, next) => {
     const tunnelId = await addTunnel(byId, againstId, tunnelItem)
     const { users, tunnels } = await getUsersAndTunnels()
     ctx.body = { tunnelId, users, tunnels }
+
+    console.log('sending notifications')
+    sendTunnelNotifications(
+      byUser,
+      againstUser,
+      subscriptionId ? parseInt(subscriptionId, 10) : null
+    ).then(() => console.log('sent tunnel notifications'))
   } else {
     return next()
   }
@@ -84,12 +77,25 @@ app.use(async (ctx, next) => {
 })
 
 app.use(async (ctx, next) => {
+  if (ctx.method === 'POST' && ctx.path === '/api/subscribe') {
+    const { subscription, userAgent } = ctx.request.body
+
+    const subscriptionId = await addPushSubscription(subscription, userAgent)
+
+    ctx.body = { subscriptionId }
+  } else {
+    return next()
+  }
+})
+
+app.use(async (ctx, next) => {
   if (ctx.method === 'GET' && ctx.path === '/') {
     const { users, tunnels } = await getUsersAndTunnels()
 
     await ctx.render('index', {
       users,
-      tunnels
+      tunnels,
+      vapidPublicKey: config.vapidPublicKey
     })
   } else {
     return next()

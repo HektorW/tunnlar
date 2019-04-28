@@ -60,6 +60,21 @@ self.addEventListener('fetch', event => {
   )
 })
 
+self.addEventListener('push', onPush)
+
+function onPush(event) {
+  event.waitUntil(
+    (async () => {
+      const { title, ...notificationOptions } = await event.data.json()
+
+      notificationOptions.icon = '/images/icon_192x192.png'
+      notificationOptions.badge = '/images/icon-black_64x64.png'
+
+      return self.registration.showNotification(title, notificationOptions)
+    })()
+  )
+}
+
 const sendMessage = message =>
   self.clients.matchAll().then(clients => {
     if (clients) {

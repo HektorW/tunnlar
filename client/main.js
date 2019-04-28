@@ -12,8 +12,37 @@ let lastTunnelResponse = []
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return
 
-  navigator.serviceWorker.register('/service-worker.js').then(() => {
-    // TODO : request notifications
+  navigator.serviceWorker.register('/service-worker.js').then(registration => {
+    registration.pushManager
+      .getSubscription()
+      .then(async subscription => {
+        if (!subscription) {
+          await Notification.requestPermission()
+          subscription = await registration.pushManager.subscribe({
+            applicationServerKey: urlBase64ToUint8Array(
+              window.settings.vapidPublicKey
+            ),
+            userVisibleOnly: true
+          })
+        }
+
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          body: JSON.stringify({
+            subscription,
+            userAgent: navigator.userAgent
+          }),
+          headers: {
+            'content-type': 'application/json'
+          }
+        })
+
+        if (response.ok) {
+          const { subscriptionId } = await response.json()
+          localStorage.setItem('subscriptionId', subscriptionId)
+        }
+      })
+      .catch(error => console.error(error))
 
     navigator.serviceWorker.addEventListener('message', event => {
       if (
@@ -24,6 +53,14 @@ function registerServiceWorker() {
       }
     })
   })
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+
+  const rawData = window.atob(base64)
+  return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)))
 }
 
 const isIntercepting = (aX, aY, aWidth, aHeight, bX, bY, bWidth, bHeight) =>
@@ -155,7 +192,8 @@ function addTunnel(byId, againstId, tunnelItem) {
         body: JSON.stringify({
           byId,
           againstId,
-          tunnelItem
+          tunnelItem,
+          subscriptionId: localStorage.getItem('subscriptionId') || null
         }),
         headers: {
           'content-type': 'application/json'
