@@ -25,18 +25,26 @@
   <main>
     {{#each users}}
     <div class="user" data-user="{{id}}">
-      <div class="user__information">
-        <h2 class="user__name">{{name}}</h2>
-        <p class="user__tunnels"><span class="user__tunnels-value" data-count>{{tunnelCount}}</span></p>
+      <h2 class="user__name">{{name}}</h2>
+
+      <div class="user__tunnels">
+        <div class="user__tunnels-by">
+          <div class="user__tunnels-by-value" data-tunnels-by>{{tunnelsBy}}</div>
+          <div class="user__tunnels-by-label">Tunnlat</div>
+        </div>
+
+        <div class="user__tunnels-against">
+          <div class="user__tunnels-against-value" data-tunnels-against>{{tunnelsAgains}}</div>
+          <div class="user__tunnels-against-label">Tunnlad</div>
+        </div>
       </div>
 
-      <img class="user__legs" src="/images/Untitled.png" />
+      <img class="user__legs" src="/images/legs_{{id}}.png" />
+      <img class="user__legs-raised" src="/images/legs_{{id}}--raised.png" />
 
-      <div class="user__actions">
-        <div class="user__actions-ball" data-ball></div>
-
-        {{!-- <button class="user__actions-remove" data-remove></button>
-        <button class="user__actions-add" data-add></button> --}}
+      <div class="user__ball-container">
+        <div class="user__ball-shadow"></div>
+        <img class="user__ball" src="/images/ball.png" data-ball />
       </div>
     </div>
     {{/each}}

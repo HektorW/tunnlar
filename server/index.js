@@ -3,8 +3,21 @@ const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
 const koaHandlebars = require('koa-handlebars')
 const serve = require('koa-static')
-const { getAllUsers, setTunnelCount } = require('./db/models/user')
-const { getAllTunnels } = require('./db/models/tunnel')
+const { getUser, getAllUsers, setTunnelCount } = require('./db/models/user')
+const { getAllTunnels, addTunnel } = require('./db/models/tunnel')
+
+const getUsersAndTunnels = async () => {
+  const [users, tunnels] = await Promise.all([getAllUsers(), getAllTunnels()])
+  return {
+    tunnels,
+    users: users.map(user => ({
+      ...user,
+      tunnelsBy: tunnels.filter(tunnel => tunnel.by === user.id).length,
+      tunnelsAgainst: tunnels.filter(tunnel => tunnel.against === user.id)
+        .length
+    }))
+  }
+}
 
 const app = new Koa()
 
@@ -22,18 +35,41 @@ app.use(
 
 app.use(bodyParser())
 
-app.use(async (ctx, next) => {
-  if (ctx.method === 'POST' && ctx.path === '/api/set-count') {
-    const { userId, count } = ctx.request.body
+// app.use(async (ctx, next) => {
+//   if (ctx.method === 'POST' && ctx.path === '/api/set-count') {
+//     const { userId, count } = ctx.request.body
 
-    if (count < 0) {
+//     if (count < 0) {
+//       ctx.status = 400
+//       ctx.body = 'Invalid count'
+//       return
+//     }
+
+//     await setTunnelCount(userId, count)
+//     ctx.body = { success: true }
+//   } else {
+//     return next()
+//   }
+// })
+
+app.use(async (ctx, next) => {
+  if (ctx.method === 'POST' && ctx.path === '/api/add-tunnel') {
+    const { byId, againstId, tunnelItem } = ctx.request.body
+
+    const [byUser, againstUser] = await Promise.all([
+      getUser(byId),
+      getUser(againstId)
+    ])
+
+    if (!byUser || !againstUser) {
       ctx.status = 400
-      ctx.body = 'Invalid count'
+      ctx.body = 'Invalid ids'
       return
     }
 
-    await setTunnelCount(userId, count)
-    ctx.body = { success: true }
+    const tunnelId = await addTunnel(byId, againstId, tunnelItem)
+    const { users, tunnels } = await getUsersAndTunnels()
+    ctx.body = { tunnelId, users, tunnels }
   } else {
     return next()
   }
@@ -41,13 +77,7 @@ app.use(async (ctx, next) => {
 
 app.use(async (ctx, next) => {
   if (ctx.method === 'GET' && ctx.path === '/api/get-all') {
-    const allUsers = await getAllUsers()
-    const allTunnels = await getAllTunnels()
-
-    ctx.body = allUsers.map(user => ({
-      ...user,
-      tunnels: allTunnels.filter(tunnel => tunnel.by === user.id)
-    }))
+    ctx.body = await getUsersAndTunnels()
   } else {
     return next()
   }
@@ -55,9 +85,11 @@ app.use(async (ctx, next) => {
 
 app.use(async (ctx, next) => {
   if (ctx.method === 'GET' && ctx.path === '/') {
-    const users = await getAllUsers()
+    const { users, tunnels } = await getUsersAndTunnels()
+
     await ctx.render('index', {
-      users
+      users,
+      tunnels
     })
   } else {
     return next()

@@ -12,7 +12,7 @@ body {
   background: linear-gradient(
     to bottom,
     hsl(52, 100%, 50%),
-    hsla(42, 100%, 55%, 1)
+    hsla(32, 100%, 55%, 1)
   );
   background-attachment: fixed;
   color: #001f3f;
@@ -57,13 +57,16 @@ footer {
 }
 
 .user {
-  align-items: center;
   background-color: #fff;
+  border: 2px solid #001f3f;
   box-shadow: -10px 12px 0 #001f3f;
   color: #001f3f;
   display: flex;
-  margin-top: 1.5rem;
-  padding: 1.25rem 1.5rem;
+  flex-direction: column;
+  height: 128px;
+  justify-content: space-between;
+  margin-top: 1.75rem;
+  padding: 1rem 1.5rem;
   position: relative;
   z-index: 1;
 }
@@ -81,112 +84,127 @@ footer {
   font-weight: 400;
   margin: 0;
   text-transform: uppercase;
+  position: relative;
 }
+
+/* .user__name::after {
+  background-color: #ff8b10;
+  bottom: -4px;
+  content: '';
+  height: 10px;
+  left: -5px;
+  position: absolute;
+  width: 50px;
+  z-index: -1;
+}
+
+.user:nth-child(2) .user__name::after {
+  background-color: #4ba083;
+}
+
+.user:nth-child(3) .user__name::after {
+  background-color: #cacaca;
+} */
 
 .user__tunnels {
-  align-items: center;
+  align-items: flex-end;
   display: flex;
-  margin-bottom: 0;
-  margin-top: 14px;
 }
 
-.user__tunnels-value {
-  font-size: 4rem;
-  margin-left: 0.25rem;
+.user__tunnels-by {
+  margin-right: 20px;
 }
 
-.user__legs {
+.user__tunnels-by-value,
+.user__tunnels-against-value {
+  border-bottom: 2px solid #001f3f;
+  text-align: center;
+  text-shadow: -2px 1px #001f3f;
+}
+
+.user__tunnels-by-label,
+.user__tunnels-against-label {
+  font-size: 8px;
+  padding-top: 4px;
+}
+
+.user__tunnels-by-value {
+  color: #2ecc40;
+  font-size: 40px;
+  min-width: 80px;
+  padding-bottom: 3px;
+}
+
+.user__tunnels-against-value {
+  color: #ff4136;
+  font-size: 20px;
+  padding-bottom: 5px;
+}
+
+.user__legs,
+.user__legs-raised {
   display: none;
   image-rendering: pixelated;
   position: absolute;
-  right: 0;
-  top: -39px;
-  width: 170px;
+  right: 40%;
+  top: 0;
+  transform: translateX(50%);
+  height: 115px;
+}
+
+.drag-target .user__tunnels {
+  display: none;
 }
 
 .drag-target .user__legs {
   display: block;
 }
 
-.user__actions {
-  display: flex;
-  margin-left: auto;
+.drag-target.hovered .user__legs {
+  display: none;
 }
 
-.user__actions-ball {
-  background-color: #85144b;
-  border-radius: 50%;
+.drag-target.hovered .user__legs-raised {
+  display: block;
+}
+
+.user__ball-container,
+.user__ball {
   height: 60px;
   width: 60px;
 }
 
-.drag-target .user__actions-ball {
-  display: none;
-}
-
-.user__actions-add,
-.user__actions-remove {
-  align-items: center;
-  border: 0;
-  border-radius: 50%;
-  color: #fff;
-  display: flex;
-  font-size: 2rem;
-  height: 50px;
-  justify-content: center;
-  outline: none;
-  position: relative;
-  transform: scale(1);
-  transition: transform 0.1s;
-  width: 50px;
-}
-
-.user__actions-add:active,
-.user__actions-remove:active {
-  transform: scale(0.9);
-  transition: 0s;
-}
-
-.user__actions-add::after,
-.user__actions-add::before,
-.user__actions-remove::before {
-  background-color: #fff;
-  content: '';
-  height: 3px;
-  left: 32.5%;
+.user__ball-container {
   position: absolute;
-  top: calc(50% - 1.5px);
-  width: 35%;
+  right: 40px;
+  top: calc(50% - 30px);
 }
 
-.user__actions-add::after {
-  transform: rotate(90deg);
+.user__ball-shadow {
+  background-color: #001f3f;
+  border-radius: 50%;
+  height: 20px;
+  left: 20px;
+  opacity: 0.25;
+  position: absolute;
+  top: 20px;
+  width: 20px;
 }
 
-.user__actions-add {
-  background-color: hsl(127, 73%, 59%);
-  margin-left: 0.75rem;
+.user__ball {
+  background-color: #85144b;
+  border-radius: 50%;
+  position: relative;
 }
 
-.user__actions-remove {
-  background-color: #ff4136;
+.drag-target .user__ball-shadow,
+.drag-target .user__ball {
+  display: none;
 }
 
 @media (max-width: 375px) {
   h1 {
     font-size: 2rem;
-  }
-}
-
-@media (max-width: 350px) {
-  .user__actions {
-    flex-direction: column;
-  }
-
-  .user__actions-add {
-    margin-bottom: 0.75rem;
-    margin-left: 0;
-    order: -1;
   }
 }
 
