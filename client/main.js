@@ -1,5 +1,6 @@
 const userEls = Array.from(document.querySelectorAll('[data-user]'))
 const timeLeftEl = document.querySelector('[data-time-left]')
+const pulseEl = document.querySelector('[data-pulse-notification]')
 
 const getUserElId = userEl => parseInt(userEl.getAttribute('data-user'), 10)
 const getTunnelsByEl = userEl => userEl.querySelector('[data-tunnels-by]')
@@ -225,6 +226,7 @@ function addTunnel(byId, againstId, tunnelItem) {
   renderTunnelCounts([...lastTunnelResponse, tempTunnel])
 
   requestChain.then(async () => {
+    setLoading(true)
     try {
       const response = await fetch('/api/add-tunnel', {
         method: 'POST',
@@ -245,9 +247,12 @@ function addTunnel(byId, againstId, tunnelItem) {
 
       const { tunnels, tunnelId } = await response.json()
 
+      setLoading(false)
+
       lastTunnelResponse = tunnels
       renderTunnelCounts(tunnels)
     } catch (error) {
+      setLoading(false)
       renderTunnelCounts(lastTunnelResponse)
       requestChain = Promise.resolve()
       fetchLatestValues()
@@ -256,15 +261,32 @@ function addTunnel(byId, againstId, tunnelItem) {
   })
 }
 
+let loadingTimeoutId = null
+function setLoading(loading = true) {
+  if (loading) {
+    if (loadingTimeoutId === null) {
+      loadingTimeoutId = setTimeout(() => pulseEl.classList.add('active'), 1000)
+    }
+  } else {
+    clearTimeout(loadingTimeoutId)
+    loadingTimeoutId = null
+    pulseEl.classList.remove('active')
+  }
+}
+
 let fetchLatestTimeoutId = null
 function fetchLatestValues() {
   clearTimeout(fetchLatestTimeoutId)
 
   requestChain.then(async () => {
+    setLoading(true)
+
     const response = await fetch('/api/get-all')
     if (!response.ok) return
 
     const { tunnels } = await response.json()
+
+    setLoading(false)
 
     lastTunnelResponse = tunnels
     renderTunnelCounts(tunnels)
