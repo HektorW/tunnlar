@@ -97,7 +97,7 @@ function setupEventHandlers() {
     const onTouchStart = event => {
       if (isAnimatingBack) return
 
-      navigator.vibrate(15)
+      navigator.vibrate(10)
 
       dragStartTouch = event.touches ? event.touches[0] : event
 
