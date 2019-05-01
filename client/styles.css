@@ -68,11 +68,6 @@ footer {
   margin-top: 1.75rem;
   padding: 1rem 1.5rem;
   position: relative;
-  z-index: 1;
-}
-
-.user.drag-target {
-  z-index: 0;
 }
 
 .user:first-child {

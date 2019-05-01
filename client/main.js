@@ -101,7 +101,11 @@ function setupEventHandlers() {
 
       dragStartTouch = event.touches ? event.touches[0] : event
 
-      otherUserEls.forEach(otherEl => otherEl.classList.add('drag-target'))
+      userEl.style.zIndex = 2
+      otherUserEls.forEach(otherEl => {
+        otherEl.style.zIndex = 1
+        otherEl.classList.add('drag-target')
+      })
 
       // Cache some values
       ballX = dragBall.getBoundingClientRect().left
