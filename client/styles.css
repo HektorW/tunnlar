@@ -26,7 +26,7 @@ body {
   min-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
   text-rendering: optimizeLegibility;
 }
 
@@ -107,7 +107,7 @@ footer {
   height: 128px;
   justify-content: space-between;
   margin-top: 1.75rem;
-  padding: 1rem 1.5rem 1rem 2rem;
+  padding: 1rem 1.5rem;
   position: relative;
 }
 
@@ -203,7 +203,7 @@ footer {
 
 .user__ball-container {
   position: absolute;
-  right: 40px;
+  right: 20px;
   top: calc(50% - 30px);
 }
 
@@ -230,9 +230,23 @@ footer {
 }
 
 /* Media queries */
+@media (min-width: 350px) {
+  body {
+    padding: 2rem;
+  }
+}
+
 @media (min-width: 375px) {
   h1 {
     font-size: 2.5rem;
+  }
+
+  .user {
+    padding-left: 2rem;
+  }
+
+  .user__ball-container {
+    right: 40px;
   }
 }
 
