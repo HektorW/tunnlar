@@ -9,6 +9,8 @@ const getTunnelsAgainstEl = userEl =>
 let requestChain = Promise.resolve()
 let lastTunnelResponse = []
 
+const translatePosRegex = /translate3d\((\d+)(?:px)?,\s*(\d+)/i
+
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return
 
@@ -87,7 +89,14 @@ function setupEventHandlers() {
 
     let dragStartTouch = null
 
+    let isAnimatingBack = false
+    let startAnimatingTime = null
+    let startAnimatingX = null
+    let startAnimatingY = null
+
     const onTouchStart = event => {
+      if (isAnimatingBack) return
+
       navigator.vibrate(15)
 
       dragStartTouch = event.touches ? event.touches[0] : event
@@ -120,8 +129,8 @@ function setupEventHandlers() {
 
       const moveTouch = event.touches ? event.touches[0] : event
 
-      const moveX = moveTouch.pageX - dragStartTouch.pageX
-      const moveY = moveTouch.pageY - dragStartTouch.pageY
+      const moveX = (startAnimatingX = moveTouch.pageX - dragStartTouch.pageX)
+      const moveY = (startAnimatingY = moveTouch.pageY - dragStartTouch.pageY)
 
       dragBall.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`
 
@@ -147,8 +156,6 @@ function setupEventHandlers() {
     }
 
     const onTouchEnd = () => {
-      dragBall.style.transform = ''
-
       const hoveredEl = otherUserEls.find(otherEl =>
         otherEl.classList.contains('hovered')
       )
@@ -164,12 +171,40 @@ function setupEventHandlers() {
       window.removeEventListener('mouseup', onTouchEnd)
 
       if (hoveredEl) {
+        // TODO : Animate something with the ball
+        dragBall.style.transform = ''
+
         navigator.vibrate(50)
 
         const byId = getUserElId(userEl)
         const againstId = getUserElId(hoveredEl)
 
         addTunnel(byId, againstId)
+      } else {
+        startAnimatingTime = performance.now()
+        animateBallBack()
+      }
+    }
+
+    const easeOut = t => 1 - Math.abs(Math.pow(t - 1, 3))
+    const animateBallBack = () => {
+      const animateDuration = 250
+      const now = performance.now()
+      const elapsed = now - startAnimatingTime
+
+      if (elapsed > animateDuration) {
+        isAnimatingBack = false
+        dragBall.style.transform = ''
+      } else {
+        isAnimatingBack = true
+
+        const t = elapsed / animateDuration
+        const easedT = 1 - easeOut(t)
+        const x = startAnimatingX * easedT
+        const y = startAnimatingY * easedT
+
+        dragBall.style.transform = `translate3d(${x}px, ${y}px, 0)`
+        requestAnimationFrame(animateBallBack)
       }
     }
 
