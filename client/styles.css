@@ -21,7 +21,7 @@ body {
   font-family: 'Press Start 2P', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  justify-content: center;
+  justify-content: space-between;
   margin: 0;
   min-height: 100%;
   overflow-x: hidden;
@@ -40,21 +40,21 @@ footer {
 
 h1 {
   color: #fff;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 400;
   letter-spacing: 1px;
   margin: 0;
   text-shadow: -4px 5px #001f3f;
 }
 
-main {
+main,
+footer {
   margin-top: 2rem;
 }
 
 footer {
   color: #fff;
   font-size: 12px;
-  margin-top: 2rem;
   text-shadow: -1.5px 2px #001f3f;
 }
 
@@ -133,25 +133,6 @@ footer {
   position: relative;
 }
 
-/* .user__name::after {
-  background-color: #ff8b10;
-  bottom: -4px;
-  content: '';
-  height: 10px;
-  left: -5px;
-  position: absolute;
-  width: 50px;
-  z-index: -1;
-}
-
-.user:nth-child(2) .user__name::after {
-  background-color: #4ba083;
-}
-
-.user:nth-child(3) .user__name::after {
-  background-color: #cacaca;
-} */
-
 .user__tunnels {
   align-items: flex-end;
   display: flex;
@@ -175,7 +156,6 @@ footer {
 }
 
 .user__tunnels-by-value {
-  /* color: #2ecc40; */
   color: hsl(131, 82%, 45%);
   font-size: 40px;
   min-width: 80px;
@@ -249,18 +229,20 @@ footer {
   display: none;
 }
 
-@media (max-width: 375px) {
+/* Media queries */
+@media (min-width: 375px) {
   h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 }
 
-@media (max-height: 600px) {
-  main {
-    margin-bottom: 0;
+@media (min-height: 850px) {
+  body {
+    justify-content: center;
   }
 }
 
+/* Animations */
 h1,
 .user {
   animation: appear 0.75s forwards ease;
