@@ -12,7 +12,7 @@ body {
   background: linear-gradient(
     to bottom,
     hsl(52, 100%, 50%),
-    hsla(32, 100%, 55%, 1)
+    hsl(32, 100%, 55%)
   );
   background-attachment: fixed;
   color: #001f3f;
@@ -136,6 +136,12 @@ footer {
 .user__tunnels {
   align-items: flex-end;
   display: flex;
+  opacity: 1;
+}
+
+.user__tunnels-by,
+.user__tunnels-against {
+  position: relative;
 }
 
 .user__tunnels-by {
@@ -145,8 +151,29 @@ footer {
 .user__tunnels-by-value,
 .user__tunnels-against-value {
   border-bottom: 3px solid #001f3f;
+  position: relative;
   text-align: center;
   text-shadow: -2px 1px #001f3f;
+}
+
+.user__tunnels-by-value::after,
+.user__tunnels-against-value::after {
+  background-color: #fff;
+  content: '';
+  left: -3px;
+  height: 0;
+  position: absolute;
+  top: 0;
+  transition: height 0.15s ease-out;
+  width: calc(100% + 6px);
+}
+
+.user__tunnels-by-value.animate::after {
+  height: 42px;
+}
+
+.user__tunnels-against-value.animate::after {
+  height: 24px;
 }
 
 .user__tunnels-by-label,
@@ -159,18 +186,18 @@ footer {
   color: hsl(131, 82%, 45%);
   font-size: 40px;
   min-width: 80px;
-  padding-bottom: 3px;
+  padding-bottom: 8px;
 }
 
 .user__tunnels-against-value {
   color: #ff4136;
   font-size: 20px;
-  padding-bottom: 5px;
+  padding-bottom: 17px;
 }
 
 .user__legs,
 .user__legs-raised {
-  display: none;
+  opacity: 0;
   image-rendering: pixelated;
   position: absolute;
   right: 40%;
@@ -179,20 +206,29 @@ footer {
   height: 115px;
 }
 
+.user.fade-in .user__tunnels,
+.user.fade-in .user__legs-raised {
+  transition: opacity 0.3s ease-out;
+}
+
+.user.fade-in .user__tunnels {
+  transition-delay: 0.2s;
+}
+
 .drag-target .user__tunnels {
-  display: none;
+  opacity: 0;
 }
 
 .drag-target .user__legs {
-  display: block;
+  opacity: 1;
 }
 
 .drag-target.hovered .user__legs {
-  display: none;
+  opacity: 0;
 }
 
 .drag-target.hovered .user__legs-raised {
-  display: block;
+  opacity: 1;
 }
 
 .user__ball-container,
@@ -227,6 +263,23 @@ footer {
 .drag-target .user__ball-shadow,
 .drag-target .user__ball {
   display: none;
+}
+
+.score-animation {
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.score-animation svg {
+  left: 35%;
+  opacity: 1;
+  position: absolute;
+  top: 100%;
 }
 
 /* Media queries */

@@ -10,7 +10,21 @@ const getTunnelsAgainstEl = userEl =>
 let requestChain = Promise.resolve()
 let lastTunnelResponse = []
 
+const { abs, floor, random, sin, cos, PI } = Math
+
 const translatePosRegex = /translate3d\((\d+)(?:px)?,\s*(\d+)/i
+
+const doubleRaf = fn => {
+  let rafId = requestAnimationFrame(() => {
+    rafId = requestAnimationFrame(fn)
+  })
+
+  const cancel = () => {
+    cancelAnimationFrame(rafId)
+  }
+
+  return cancel
+}
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return
@@ -21,6 +35,8 @@ function registerServiceWorker() {
       .then(async subscription => {
         if (!subscription) {
           await Notification.requestPermission()
+          if (Notification.permission !== 'granted') return
+
           subscription = await registration.pushManager.subscribe({
             applicationServerKey: urlBase64ToUint8Array(
               window.settings.vapidPublicKey
@@ -90,14 +106,7 @@ function setupEventHandlers() {
 
     let dragStartTouch = null
 
-    let isAnimatingBack = false
-    let startAnimatingTime = null
-    let startAnimatingX = null
-    let startAnimatingY = null
-
     const onTouchStart = event => {
-      if (isAnimatingBack) return
-
       navigator.vibrate(10)
 
       dragStartTouch = event.touches ? event.touches[0] : event
@@ -107,6 +116,8 @@ function setupEventHandlers() {
         otherEl.style.zIndex = 1
         otherEl.classList.add('drag-target')
       })
+
+      dragBall.style.transition = ''
 
       // Cache some values
       ballX = dragBall.getBoundingClientRect().left
@@ -176,41 +187,57 @@ function setupEventHandlers() {
       window.removeEventListener('mouseup', onTouchEnd)
 
       if (hoveredEl) {
-        // TODO : Animate something with the ball
-        dragBall.style.transform = ''
+        dragBall.style.transition =
+          'transform 0.3s ease-out, opacity 0.2s 0.1s ease-in'
 
-        navigator.vibrate(50)
+        const targetX = userCardX + userCardWidth * 0.55 - ballX
+        const targetY =
+          hoveredEl.getBoundingClientRect().top + userCardHeight * 0.35 - ballY
+
+        addScoreAnimation(userEl)
 
         const byId = getUserElId(userEl)
         const againstId = getUserElId(hoveredEl)
 
         addTunnel(byId, againstId)
+
+        hoveredEl.classList.add('drag-target', 'hovered')
+        requestAnimationFrame(() => {
+          dragBall.style.opacity = `0`
+          dragBall.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(0.65)`
+
+          onTransitionEndOnce(dragBall, 500, () => {
+            dragBall.style.opacity = ''
+            dragBall.style.transform = ''
+            dragBall.style.transition = ''
+
+            setTimeout(() => {
+              hoveredEl.classList.add('fade-in')
+              hoveredEl.classList.remove('drag-target', 'hovered')
+
+              onTransitionEndOnce(
+                hoveredEl.querySelector('.user__tunnels'),
+                500,
+                () => {
+                  hoveredEl.classList.remove('fade-in')
+                }
+              )
+            }, 200)
+          })
+        })
+
+        navigator.vibrate(50)
       } else {
         startAnimatingTime = performance.now()
         animateBallBack()
       }
     }
 
-    const easeOut = t => 1 - Math.abs(Math.pow(t - 1, 3))
     const animateBallBack = () => {
-      const animateDuration = 250
-      const now = performance.now()
-      const elapsed = now - startAnimatingTime
-
-      if (elapsed > animateDuration) {
-        isAnimatingBack = false
-        dragBall.style.transform = ''
-      } else {
-        isAnimatingBack = true
-
-        const t = elapsed / animateDuration
-        const easedT = 1 - easeOut(t)
-        const x = startAnimatingX * easedT
-        const y = startAnimatingY * easedT
-
-        dragBall.style.transform = `translate3d(${x}px, ${y}px, 0)`
-        requestAnimationFrame(animateBallBack)
-      }
+      dragBall.style.transition = 'transform 250ms ease-out'
+      requestAnimationFrame(() => {
+        dragBall.style.transform = `none`
+      })
     }
 
     dragBall.addEventListener('touchstart', onTouchStart)
@@ -219,7 +246,7 @@ function setupEventHandlers() {
 }
 
 function addTunnel(byId, againstId, tunnelItem) {
-  const tempId = Math.random()
+  const tempId = random()
 
   const tempTunnel = { by: byId, against: againstId, tunnelItem, id: tempId }
 
@@ -261,6 +288,24 @@ function addTunnel(byId, againstId, tunnelItem) {
   })
 }
 
+const onTransitionEndOnce = (el, fallbackMs, fn) => {
+  const _onTransitionEnd = () => {
+    cancel()
+    fn()
+  }
+
+  const timeoutId = setTimeout(_onTransitionEnd, fallbackMs)
+
+  el.addEventListener('transitionend', _onTransitionEnd)
+
+  const cancel = () => {
+    clearTimeout(timeoutId)
+    el.removeEventListener('transitionend', _onTransitionEnd)
+  }
+
+  return cancel
+}
+
 let loadingTimeoutId = null
 function setLoading(loading = true) {
   if (loading) {
@@ -296,6 +341,89 @@ function fetchLatestValues() {
   })
 }
 
+function animateCountChange(el, count) {
+  const currentCount = parseInt(el.innerHTML, 10)
+  if (currentCount === count) return
+
+  if (el.cancelAnimation) {
+    el.cancelAnimation()
+  }
+
+  const clearTransitionListener = onTransitionEndOnce(el, 500, () => {
+    clearDoubleRaf()
+    el.cancelAnimation = null
+    el.innerHTML = count
+    el.classList.remove('animate')
+  })
+
+  const clearDoubleRaf = doubleRaf(() => {
+    el.classList.add('animate')
+  })
+
+  el.cancelAnimation = () => {
+    clearTransitionListener()
+    clearDoubleRaf()
+  }
+}
+
+const randRange = (min, max) => min + abs(max - min) * random()
+const randInt = max => floor(random() * max)
+const radianToDegree = radian => radian * (180 / PI)
+
+function addScoreAnimation(userEl) {
+  const animationContainerEl = userEl.querySelector(
+    '[data-animation-container]'
+  )
+
+  const balloonSvgs = document.querySelector('[data-balloons]').children
+  const confettiSvgs = document.querySelector('[data-confetti]').children
+
+  const userColor = getComputedStyle(userEl).borderLeftColor
+  const colors = [userColor, 'hsl(52, 100%, 50%)', 'hsl(32, 100%, 55%)']
+
+  const createParticles = (particleSvgs, count, minDistance, maxDistance) => {
+    for (let index = 0; index < count; index += 1) {
+      const particleClone = particleSvgs[
+        randInt(particleSvgs.length)
+      ].cloneNode(true)
+
+      const particleColor = colors[randInt(colors.length)]
+
+      particleClone
+        .querySelectorAll('[data-color]')
+        .forEach(node => (node.style.fill = particleColor))
+
+      const angle = randRange(PI + PI * 0.2, PI + PI * 0.7)
+      const distance = randRange(minDistance, maxDistance)
+
+      const targetX = cos(angle) * distance
+      const targetY = sin(angle) * distance
+
+      const rotateDeg = radianToDegree(angle) + 90
+
+      const scale = randRange(0.9, 1.1)
+
+      particleClone.style.transform = `translate3d(0, 0, 0) rotate(${rotateDeg}deg) scale(${scale})`
+
+      setTimeout(() => {
+        particleClone.style.opacity = 0
+        particleClone.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) rotate(${rotateDeg}deg) scale(${scale})`
+        particleClone.style.transition =
+          'transform 1s ease-out, opacity 0.7s 0.3s'
+      }, randInt(300))
+
+      animationContainerEl.appendChild(particleClone)
+    }
+  }
+
+  createParticles(balloonSvgs, 8, 230, 350)
+  createParticles(confettiSvgs, 15, 100, 200)
+
+  setTimeout(() => {
+    animationContainerEl.innerHTML = ''
+  }, 1500)
+}
+
 function renderTunnelCounts(tunnels) {
   userEls.forEach(userEl => {
     const userId = getUserElId(userEl)
@@ -306,8 +434,8 @@ function renderTunnelCounts(tunnels) {
     const againstCount = tunnels.filter(tunnel => tunnel.against === userId)
       .length
 
-    tunnelsByEl.innerHTML = byCount
-    tunnelsAgainstEl.innerHTML = againstCount
+    animateCountChange(tunnelsByEl, byCount)
+    animateCountChange(tunnelsAgainstEl, againstCount)
   })
 }
 
