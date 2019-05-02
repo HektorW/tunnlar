@@ -341,9 +341,16 @@ function fetchLatestValues() {
   })
 }
 
+const pageLoadNow = performance.now()
 function animateCountChange(el, count) {
   const currentCount = parseInt(el.innerHTML, 10)
   if (currentCount === count) return
+
+  // Avoid updates during appear animation
+  if (performance.now() - pageLoadNow < 2000) {
+    el.innerHTML = count
+    return
+  }
 
   if (el.cancelAnimation) {
     el.cancelAnimation()
