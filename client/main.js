@@ -400,7 +400,7 @@ function addScoreAnimation(userEl) {
         .querySelectorAll('[data-color]')
         .forEach(node => (node.style.fill = particleColor))
 
-      const angle = randRange(PI + PI * 0.2, PI + PI * 0.7)
+      const angle = randRange(PI + PI * 0.2, PI + PI * 0.65)
       const distance = randRange(minDistance, maxDistance)
 
       const targetX = cos(angle) * distance
