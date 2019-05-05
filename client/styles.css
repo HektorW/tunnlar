@@ -87,6 +87,10 @@ button {
   outline: none;
 }
 
+a {
+  color: inherit;
+}
+
 .pulse-notification {
   background: var(--orange);
   border-radius: 50%;
@@ -326,6 +330,13 @@ button {
   right: 2rem;
   transform: translateY(5px) scale(1.075);
   transition: opacity 0.3s, transform 0.3s;
+}
+
+.refresh-toast a {
+  border-bottom: 3px solid var(--lime);
+  outline: none;
+  padding-bottom: 2px;
+  text-decoration: none;
 }
 
 .refresh-toast__close {

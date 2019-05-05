@@ -84,7 +84,7 @@ function onServiceWorkerMessage(event) {
     }
 
     case 'main-resource': {
-      showToast('Siddan uppdaterad!<br> Ladda om för se det.')
+      showToast('Siddan uppdaterad!<br><a href="/">Ladda om</a> för se det.')
       break
     }
   }
