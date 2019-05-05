@@ -58,6 +58,15 @@ footer {
   text-shadow: -1.5px 2px #001f3f;
 }
 
+button {
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  outline: none;
+}
+
 .pulse-notification {
   background: #ff851b;
   border-radius: 50%;
@@ -280,6 +289,55 @@ footer {
   opacity: 1;
   position: absolute;
   top: 100%;
+}
+
+.refresh-toast {
+  background: linear-gradient(25deg, #f012be, #b10dc9);
+  border: 3px solid #001f3f;
+  bottom: 1rem;
+  box-shadow: -4px 3px #001f3f;
+  color: #fff;
+  font-size: 10px;
+  left: 2rem;
+  line-height: 1.2;
+  opacity: 0;
+  padding: 0.75rem 2.5rem;
+  position: fixed;
+  transform: scale(1.075);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.refresh-toast__close {
+  height: 0.7rem;
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  width: 0.7rem;
+}
+
+.refresh-toast__close::after,
+.refresh-toast__close::before {
+  background-color: #fff;
+  content: '';
+  height: 100%;
+  left: calc(50% - 1px);
+  position: absolute;
+  top: 0;
+  transform-origin: center center;
+  width: 2px;
+}
+
+.refresh-toast__close::before {
+  transform: rotate(-45deg);
+}
+
+.refresh-toast__close::after {
+  transform: rotate(45deg);
+}
+
+.refresh-toast.active {
+  opacity: 1;
+  transform: none;
 }
 
 /* Media queries */

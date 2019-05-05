@@ -1,11 +1,5 @@
 const cacheName = 'files-chache-1.0.0'
-const precacheFiles = [
-  '/',
-  '/main.js',
-  '/styles.css',
-  '/manifest.json'
-  // '/background.jpg'
-]
+const precacheFiles = ['/', '/main.js', '/styles.css', '/manifest.json']
 
 self.addEventListener('install', event => {
   self.skipWaiting()
@@ -15,11 +9,14 @@ self.addEventListener('install', event => {
   )
 })
 
+self.addEventListener('activate', () => {
+  sendMainResourceNotification({ url: '/service-worker.js' })
+})
+
 self.addEventListener('fetch', event => {
   const { request } = event
 
   if (request.method !== 'GET') return
-  // if (request.url.indexOf('/api/') !== -1) return handleApiRequest(event)
 
   const fetchRequest = fetch(request)
 
@@ -40,20 +37,28 @@ self.addEventListener('fetch', event => {
     fetchRequest.then(response =>
       caches.open(cacheName).then(cache =>
         cache.match(request).then(async cachedResponse => {
-          if (cachedResponse && request.url.indexOf('/api/') !== -1) {
-            const responseData = await response.clone().json()
-            sendMessage({
-              messageType: 'api-response',
-              requestUrl: request.url,
-              responseData
-            })
+          if (cachedResponse) {
+            const requestPath = getRequestPath(request)
+
+            const isApiRequest = requestPath.indexOf('/api/') === 0
+
+            const isMainResource =
+              !isApiRequest && precacheFiles.includes(requestPath)
+
+            const isUpdatedContent =
+              cachedResponse.headers.get('etag') !==
+              response.headers.get('etag')
+
+            if (isApiRequest) {
+              sendMessage({
+                messageType: 'api-response',
+                requestUrl: request.url,
+                responseData: await response.clone().json()
+              })
+            } else if (isMainResource && isUpdatedContent) {
+              sendMainResourceNotification(request)
+            }
           }
-          // if (
-          //   cachedResponse &&
-          //   cachedResponse.headers.get('etag') !== response.headers.get('etag')
-          // ) {
-          //   sendMessage('refresh')
-          // }
 
           return cache.put(request, response.clone())
         })
@@ -77,9 +82,35 @@ function onPush(event) {
   )
 }
 
-const sendMessage = message =>
-  self.clients.matchAll().then(clients => {
+const sendMessage = message => {
+  return self.clients.matchAll().then(clients => {
     if (clients) {
       clients.forEach(client => client.postMessage(message))
     }
   })
+}
+
+let mainResourceNotificationTimeoutId = null
+let updatedMainResourceUrls = []
+const sendMainResourceNotification = request => {
+  if (!updatedMainResourceUrls.includes(request.url)) {
+    updatedMainResourceUrls.push(request.url)
+  }
+
+  if (mainResourceNotificationTimeoutId !== null) return
+
+  mainResourceNotificationTimeoutId = setTimeout(() => {
+    sendMessage({
+      messageType: 'main-resource',
+      requestUrls: updatedMainResourceUrls
+    })
+    updatedMainResourceUrls = []
+    mainResourceNotificationTimeoutId = null
+  }, 500)
+}
+
+const pathRegex = /^https?:\/\/[^\/]+([^?]*)$/
+const getRequestPath = request => {
+  const match = pathRegex.exec(request.url)
+  return match ? match[1] : ''
+}

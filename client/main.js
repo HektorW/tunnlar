@@ -1,11 +1,14 @@
 const userEls = Array.from(document.querySelectorAll('[data-user]'))
 const timeLeftEl = document.querySelector('[data-time-left]')
 const pulseEl = document.querySelector('[data-pulse-notification]')
+const refreshToastEl = document.querySelector('[data-refresh-toast]')
 
 const getUserElId = userEl => parseInt(userEl.getAttribute('data-user'), 10)
 const getTunnelsByEl = userEl => userEl.querySelector('[data-tunnels-by]')
 const getTunnelsAgainstEl = userEl =>
   userEl.querySelector('[data-tunnels-against]')
+
+const pageLoadNow = performance.now()
 
 let requestChain = Promise.resolve()
 let lastTunnelResponse = []
@@ -30,48 +33,93 @@ function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return
 
   navigator.serviceWorker.register('/service-worker.js').then(registration => {
-    registration.pushManager
-      .getSubscription()
-      .then(async subscription => {
-        if (!subscription) {
-          await Notification.requestPermission()
-          if (Notification.permission !== 'granted') return
+    subscribeToPush(registration)
+  })
 
-          subscription = await registration.pushManager.subscribe({
-            applicationServerKey: urlBase64ToUint8Array(
-              window.settings.vapidPublicKey
-            ),
-            userVisibleOnly: true
-          })
-        }
+  navigator.serviceWorker.addEventListener('message', onServiceWorkerMessage)
+}
 
-        const response = await fetch('/api/subscribe', {
-          method: 'POST',
-          body: JSON.stringify({
-            subscription,
-            userAgent: navigator.userAgent
-          }),
-          headers: {
-            'content-type': 'application/json'
-          }
+function subscribeToPush(serviceWorkerRegistration) {
+  serviceWorkerRegistration.pushManager
+    .getSubscription()
+    .then(async subscription => {
+      if (!subscription) {
+        await Notification.requestPermission()
+        if (Notification.permission !== 'granted') return
+
+        subscription = await serviceWorkerRegistration.pushManager.subscribe({
+          applicationServerKey: urlBase64ToUint8Array(
+            window.settings.vapidPublicKey
+          ),
+          userVisibleOnly: true
         })
+      }
 
-        if (response.ok) {
-          const { subscriptionId } = await response.json()
-          localStorage.setItem('subscriptionId', subscriptionId)
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        body: JSON.stringify({
+          subscription,
+          userAgent: navigator.userAgent
+        }),
+        headers: {
+          'content-type': 'application/json'
         }
       })
-      .catch(error => console.error(error))
 
-    navigator.serviceWorker.addEventListener('message', event => {
-      if (
-        event.data.messageType === 'api-response' &&
-        event.data.requestUrl.indexOf('get-all') !== -1
-      ) {
-        renderTunnelCounts(event.data.responseData.tunnels)
+      if (response.ok) {
+        const { subscriptionId } = await response.json()
+        localStorage.setItem('subscriptionId', subscriptionId)
       }
     })
+    .catch(error => console.error(error))
+}
+
+function onServiceWorkerMessage(event) {
+  switch (event.data.messageType) {
+    case 'api-response': {
+      if (event.data.requestUrl.indexOf('get-all') !== -1) {
+        renderTunnelCounts(event.data.responseData.tunnels)
+      }
+      break
+    }
+
+    case 'main-resource': {
+      showRefreshToast()
+      break
+    }
+  }
+}
+
+let refreshToastTimeoutId = null
+async function showRefreshToast() {
+  if (refreshToastTimeoutId !== null) return
+
+  if (performance.now() - pageLoadNow < 1000) {
+    refreshToastTimeoutId = '_' // Just need some value, can't be canceled
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+
+  const closeEl = refreshToastEl.querySelector('[data-close]')
+
+  const onCloseClick = () => {
+    clearTimeout(refreshToastTimeoutId)
+    closeEl.removeEventListener('click', onCloseClick)
+
+    refreshToastEl.classList.remove('active')
+
+    onTransitionEndOnce(refreshToastEl, 500, () => {
+      refreshToastEl.setAttribute('hidden', '')
+    })
+  }
+
+  refreshToastEl.removeAttribute('hidden')
+
+  doubleRaf(() => {
+    refreshToastEl.classList.add('active')
   })
+
+  closeEl.addEventListener('click', onCloseClick)
+  refreshToastTimeoutId = setTimeout(onCloseClick, 5000)
 }
 
 function urlBase64ToUint8Array(base64String) {
@@ -341,7 +389,6 @@ function fetchLatestValues() {
   })
 }
 
-const pageLoadNow = performance.now()
 function animateCountChange(el, count) {
   const currentCount = parseInt(el.innerHTML, 10)
   if (currentCount === count) return

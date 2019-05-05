@@ -2,6 +2,7 @@ const { join } = require('path')
 const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
 const koaHandlebars = require('koa-handlebars')
+const koaEtag = require('koa-etag')
 const serve = require('koa-static')
 const config = require('../config')
 const sendTunnelNotifications = require('./push-notifications/sendTunnelNotifications')
@@ -87,6 +88,8 @@ app.use(async (ctx, next) => {
     return next()
   }
 })
+
+app.use(koaEtag())
 
 app.use(async (ctx, next) => {
   if (ctx.method === 'GET' && ctx.path === '/') {
