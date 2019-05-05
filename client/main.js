@@ -84,7 +84,7 @@ function onServiceWorkerMessage(event) {
     }
 
     case 'main-resource': {
-      showToast('Refresh to see<br>latest version')
+      showToast('Siddan uppdaterad!<br> Ladda om för se det.')
       break
     }
   }
@@ -331,7 +331,7 @@ function addTunnel(byId, againstId, tunnelItem) {
       lastTunnelResponse = tunnels
       renderTunnelCounts(tunnels)
     } catch (error) {
-      showToast(`Couldn't add tunnel<br>Server might be down`)
+      showToast('Lyckades inte tunnla.<br>Servern verkar vara nere.')
 
       setLoading(false)
       renderTunnelCounts(lastTunnelResponse)
