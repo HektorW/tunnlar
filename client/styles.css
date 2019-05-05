@@ -5,17 +5,37 @@
 }
 
 html {
+  --navy: #001f3f;
+  --blue: #0074d9;
+  --aqua: #7fdbff;
+  --teal: #39cccc;
+  --olive: #3d9970;
+  --green: #2ecc40;
+  --lime: #01ff70;
+  --yellow: #ffdc00;
+  --orange: #ff851b;
+  --red: #ff4136;
+  --maroon: #85144b;
+  --fuchsia: #f012be;
+  --purple: #b10dc9;
+  --black: #111;
+  --gray: #aaa;
+  --silver: #ddd;
+  --white: #fff;
+
+  --color-score-green: hsl(131, 82%, 45%);
+
+  --color-fredrik: #dd3a50;
+  --color-hektor: #4ba083;
+  --color-ludwig: #cacaca;
+
   height: 100%;
 }
 
 body {
-  background: linear-gradient(
-    to bottom,
-    hsl(52, 100%, 50%),
-    hsl(32, 100%, 55%)
-  );
+  background: linear-gradient(to bottom, var(--yellow), var(--orange));
   background-attachment: fixed;
-  color: #001f3f;
+  color: var(--navy);
   display: flex;
   flex-direction: column;
   font-family: 'Press Start 2P', sans-serif;
@@ -39,12 +59,12 @@ footer {
 }
 
 h1 {
-  color: #fff;
+  color: var(--white);
   font-size: 2rem;
   font-weight: 400;
   letter-spacing: 1px;
   margin: 0;
-  text-shadow: -4px 5px #001f3f;
+  text-shadow: -4px 5px var(--navy);
 }
 
 main,
@@ -53,9 +73,9 @@ footer {
 }
 
 footer {
-  color: #fff;
+  color: var(--white);
   font-size: 12px;
-  text-shadow: -1.5px 2px #001f3f;
+  text-shadow: -1.5px 2px var(--navy);
 }
 
 button {
@@ -68,7 +88,7 @@ button {
 }
 
 .pulse-notification {
-  background: #ff851b;
+  background: var(--orange);
   border-radius: 50%;
   height: 12px;
   opacity: 0;
@@ -85,7 +105,7 @@ button {
 
 .pulse-notification::after {
   animation: pulse 1.25s infinite ease;
-  background: #ff851b;
+  background: var(--orange);
   border-radius: 50%;
   content: '';
   height: 100%;
@@ -107,10 +127,10 @@ button {
 }
 
 .user {
-  background-color: #fff;
-  border-left: 10px solid #001f3f;
-  box-shadow: -10px 12px 0 #001f3f;
-  color: #001f3f;
+  background-color: var(--white);
+  border-left: 10px solid var(--navy);
+  box-shadow: -10px 12px 0 var(--navy);
+  color: var(--navy);
   display: flex;
   flex-direction: column;
   height: 132px;
@@ -121,13 +141,13 @@ button {
 }
 
 .user:nth-child(1) {
-  border-color: #dd3a50;
+  border-color: var(--color-fredrik);
 }
 .user:nth-child(2) {
-  border-color: #4ba083;
+  border-color: var(--color-hektor);
 }
 .user:nth-child(3) {
-  border-color: #cacaca;
+  border-color: var(--color-ludwig);
 }
 
 .user:first-child {
@@ -159,15 +179,15 @@ button {
 
 .user__tunnels-by-value,
 .user__tunnels-against-value {
-  border-bottom: 3px solid #001f3f;
+  border-bottom: 3px solid var(--navy);
   position: relative;
   text-align: center;
-  text-shadow: -2px 1px #001f3f;
+  text-shadow: -2px 1px var(--navy);
 }
 
 .user__tunnels-by-value::after,
 .user__tunnels-against-value::after {
-  background-color: #fff;
+  background-color: var(--white);
   content: '';
   left: -3px;
   height: 0;
@@ -192,14 +212,14 @@ button {
 }
 
 .user__tunnels-by-value {
-  color: hsl(131, 82%, 45%);
+  color: var(--color-score-green);
   font-size: 40px;
   min-width: 80px;
   padding-bottom: 8px;
 }
 
 .user__tunnels-against-value {
-  color: #ff4136;
+  color: var(--red);
   font-size: 20px;
   padding-bottom: 17px;
 }
@@ -253,7 +273,7 @@ button {
 }
 
 .user__ball-shadow {
-  background-color: #001f3f;
+  background-color: var(--navy);
   border-radius: 50%;
   height: 20px;
   left: 20px;
@@ -264,7 +284,7 @@ button {
 }
 
 .user__ball {
-  background-color: #85144b;
+  background-color: var(--maroon);
   border-radius: 50%;
   position: relative;
 }
@@ -292,18 +312,19 @@ button {
 }
 
 .refresh-toast {
-  background: linear-gradient(25deg, #f012be, #b10dc9);
-  border: 3px solid #001f3f;
+  background: linear-gradient(25deg, var(--fuchsia), var(--purple));
+  border: 3px solid var(--navy);
   bottom: 1rem;
-  box-shadow: -4px 3px #001f3f;
-  color: #fff;
+  box-shadow: -4px 3px var(--navy);
+  color: var(--white);
   font-size: 10px;
-  left: 2rem;
   line-height: 1.2;
+  max-width: calc(100% - 4rem);
   opacity: 0;
   padding: 0.75rem 2.5rem;
   position: fixed;
-  transform: scale(1.075);
+  right: 2rem;
+  transform: translateY(5px) scale(1.075);
   transition: opacity 0.3s, transform 0.3s;
 }
 
@@ -317,7 +338,7 @@ button {
 
 .refresh-toast__close::after,
 .refresh-toast__close::before {
-  background-color: #fff;
+  background-color: var(--white);
   content: '';
   height: 100%;
   left: calc(50% - 1px);
