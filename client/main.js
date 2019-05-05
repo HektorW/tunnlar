@@ -1,7 +1,7 @@
 const userEls = Array.from(document.querySelectorAll('[data-user]'))
 const timeLeftEl = document.querySelector('[data-time-left]')
 const pulseEl = document.querySelector('[data-pulse-notification]')
-const refreshToastEl = document.querySelector('[data-refresh-toast]')
+const toastEl = document.querySelector('[data-toast]')
 
 const getUserElId = userEl => parseInt(userEl.getAttribute('data-user'), 10)
 const getTunnelsByEl = userEl => userEl.querySelector('[data-tunnels-by]')
@@ -84,42 +84,46 @@ function onServiceWorkerMessage(event) {
     }
 
     case 'main-resource': {
-      showRefreshToast()
+      showToast('Refresh to see<br>latest version')
       break
     }
   }
 }
 
-let refreshToastTimeoutId = null
-async function showRefreshToast() {
-  if (refreshToastTimeoutId !== null) return
+let toastTimeoutId = null
+async function showToast(toastContent) {
+  if (toastTimeoutId !== null) return
 
   if (performance.now() - pageLoadNow < 1000) {
-    refreshToastTimeoutId = '_' // Just need some value, can't be canceled
+    toastTimeoutId = '_' // Just need some value, can't be canceled
     await new Promise(resolve => setTimeout(resolve, 500))
   }
 
-  const closeEl = refreshToastEl.querySelector('[data-close]')
+  const contentEl = toastEl.querySelector('[data-content]')
+  const closeEl = toastEl.querySelector('[data-close]')
+
+  contentEl.innerHTML = toastContent
 
   const onCloseClick = () => {
-    clearTimeout(refreshToastTimeoutId)
+    clearTimeout(toastTimeoutId)
     closeEl.removeEventListener('click', onCloseClick)
 
-    refreshToastEl.classList.remove('active')
+    toastEl.classList.remove('active')
 
-    onTransitionEndOnce(refreshToastEl, 500, () => {
-      refreshToastEl.setAttribute('hidden', '')
+    onTransitionEndOnce(toastEl, 500, () => {
+      toastEl.setAttribute('hidden', '')
+      toastTimeoutId = null
     })
   }
 
-  refreshToastEl.removeAttribute('hidden')
+  toastEl.removeAttribute('hidden')
 
   doubleRaf(() => {
-    refreshToastEl.classList.add('active')
+    toastEl.classList.add('active')
   })
 
   closeEl.addEventListener('click', onCloseClick)
-  refreshToastTimeoutId = setTimeout(onCloseClick, 5000)
+  toastTimeoutId = setTimeout(onCloseClick, 5000)
 }
 
 function urlBase64ToUint8Array(base64String) {
@@ -327,6 +331,8 @@ function addTunnel(byId, againstId, tunnelItem) {
       lastTunnelResponse = tunnels
       renderTunnelCounts(tunnels)
     } catch (error) {
+      showToast(`Couldn't add tunnel<br>Server might be down`)
+
       setLoading(false)
       renderTunnelCounts(lastTunnelResponse)
       requestChain = Promise.resolve()
