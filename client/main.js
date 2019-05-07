@@ -536,7 +536,7 @@ function renderTimeLeft() {
 }
 
 function showRules() {
-  history.replaceState({}, null, '/#rules')
+  history.replaceState({}, null, '/#regler')
   rulesEl.classList.add('active')
 }
 
@@ -550,6 +550,6 @@ fetchLatestValues()
 registerServiceWorker()
 renderTimeLeft()
 
-if (location.hash === '#rules') {
+if (location.hash === '#regler') {
   showRules()
 }
