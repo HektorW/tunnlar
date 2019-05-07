@@ -434,6 +434,7 @@ a {
 }
 
 .rules__close {
+  animation: appear-dialog 0.3s;
   height: 25px;
   position: absolute;
   right: 1rem;
