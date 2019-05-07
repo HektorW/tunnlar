@@ -33,7 +33,8 @@ app.use(async (ctx, next) => {
 
 app.use(
   koaHandlebars({
-    root: join(__dirname, '../client')
+    root: join(__dirname, '../client'),
+    partialsDir: 'partials'
   })
 )
 

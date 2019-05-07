@@ -57,12 +57,26 @@
 
   </main>
 
-  <footer data-time-left></footer>
+  <footer>
+    <div data-time-left></div>
+
+    <button data-open-rules>Regler</button>
+  </footer>
+
+
+  <div class="rules" data-rules>
+    <button class="rules__close close" data-close-rules></button>
+
+    <div class="rules__inner">
+      <h2>Regler</h2>
+      {{> rules }}
+    </div>
+  </div>
 
 
   <div class="refresh-toast" data-toast hidden>
     <span data-content></span>
-    <button class="refresh-toast__close" data-close></button>
+    <button class="refresh-toast__close close" data-close></button>
   </div>
 
 

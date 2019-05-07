@@ -2,6 +2,9 @@ const userEls = Array.from(document.querySelectorAll('[data-user]'))
 const timeLeftEl = document.querySelector('[data-time-left]')
 const pulseEl = document.querySelector('[data-pulse-notification]')
 const toastEl = document.querySelector('[data-toast]')
+const rulesEl = document.querySelector('[data-rules]')
+const openRulesEl = document.querySelector('[data-open-rules]')
+const closeRulesEl = document.querySelector('[data-close-rules]')
 
 const getUserElId = userEl => parseInt(userEl.getAttribute('data-user'), 10)
 const getTunnelsByEl = userEl => userEl.querySelector('[data-tunnels-by]')
@@ -141,6 +144,9 @@ const isIntercepting = (aX, aY, aWidth, aHeight, bX, bY, bWidth, bHeight) =>
   aY + aHeight / 2 > bY
 
 function setupEventHandlers() {
+  openRulesEl.addEventListener('click', showRules)
+  closeRulesEl.addEventListener('click', hideRules)
+
   userEls.forEach(userEl => {
     const otherUserEls = userEls.filter(other => other !== userEl)
     const dragBall = userEl.querySelector('[data-ball]')
@@ -529,7 +535,21 @@ function renderTimeLeft() {
   timeLeftEl.innerHTML = `${value} ${unit} kvar`
 }
 
+function showRules() {
+  history.replaceState({}, null, '/#rules')
+  rulesEl.classList.add('active')
+}
+
+function hideRules() {
+  history.replaceState({}, null, '/')
+  rulesEl.classList.remove('active')
+}
+
 setupEventHandlers()
 fetchLatestValues()
 registerServiceWorker()
 renderTimeLeft()
+
+if (location.hash === '#rules') {
+  showRules()
+}
