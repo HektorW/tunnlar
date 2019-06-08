@@ -506,7 +506,7 @@ function renderTunnelCounts(tunnels) {
 }
 
 function renderTimeLeft() {
-  const endDate = new Date('2019-8-30')
+  const endDate = new Date('2019-09-01T23:59:59')
   const timeLeft = endDate - new Date()
 
   const secondsLeft = timeLeft / 1000
