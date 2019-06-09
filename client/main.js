@@ -603,6 +603,7 @@ function showUserHistory(event) {
     const tunnelEl = historyItemTemplate.cloneNode(true)
 
     tunnelEl.removeAttribute('hidden')
+    tunnelEl.style.borderLeftColor = userColors[userId]
 
     const dateEl = tunnelEl.querySelector('[data-date]')
     const nameEl = tunnelEl.querySelector('[data-against-name]')

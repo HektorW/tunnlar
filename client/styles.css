@@ -292,7 +292,8 @@ a {
   transition-delay: 0.2s;
 }
 
-.drag-target .user__tunnels {
+.drag-target .user__tunnels,
+.drag-target .user__history {
   opacity: 0;
 }
 
@@ -555,6 +556,7 @@ a {
 .history__item {
   background-color: var(--white);
   box-shadow: -10px 12px 0 var(--navy);
+  /* border-left: 10px solid; */
   display: flex;
   flex-direction: column;
   height: 150px;
