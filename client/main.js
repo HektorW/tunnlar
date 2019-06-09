@@ -5,20 +5,51 @@ const toastEl = document.querySelector('[data-toast]')
 const rulesEl = document.querySelector('[data-rules]')
 const openRulesEl = document.querySelector('[data-open-rules]')
 const closeRulesEl = document.querySelector('[data-close-rules]')
+const openHistoryEls = document.querySelectorAll('[data-open-history]')
+const closeHistoyEl = document.querySelector('[data-close-history]')
+const historyEl = document.querySelector('[data-history]')
+const historyListEl = document.querySelector('[data-history-list]')
+const historyItemTemplate = historyEl.querySelector('[data-template]')
+
+historyItemTemplate.parentElement.removeChild(historyItemTemplate)
 
 const getUserElId = userEl => parseInt(userEl.getAttribute('data-user'), 10)
 const getTunnelsByEl = userEl => userEl.querySelector('[data-tunnels-by]')
 const getTunnelsAgainstEl = userEl =>
   userEl.querySelector('[data-tunnels-against]')
 
+const getUserNameById = userId =>
+  lastUsersResponse.find(user => user.id === userId).name
+
 const pageLoadNow = performance.now()
 
 let requestChain = Promise.resolve()
 let lastTunnelResponse = []
+let lastUsersResponse = []
 
 const { abs, floor, random, sin, cos, PI } = Math
 
 const translatePosRegex = /translate3d\((\d+)(?:px)?,\s*(\d+)/i
+
+const monthNames = [
+  'Januari',
+  'Februari',
+  'Mars',
+  'April',
+  'Maj',
+  'Juni',
+  'July',
+  'Augusti',
+  'September'
+]
+
+const userColors = userEls.reduce(
+  (colors, userEl) => ({
+    ...colors,
+    [getUserElId(userEl)]: getComputedStyle(userEl).borderLeftColor
+  }),
+  {}
+)
 
 const doubleRaf = fn => {
   let rafId = requestAnimationFrame(() => {
@@ -146,6 +177,9 @@ const isIntercepting = (aX, aY, aWidth, aHeight, bX, bY, bWidth, bHeight) =>
 function setupEventHandlers() {
   openRulesEl.addEventListener('click', showRules)
   closeRulesEl.addEventListener('click', hideRules)
+
+  closeHistoyEl.addEventListener('click', closeUserHistory)
+  openHistoryEls.forEach(el => el.addEventListener('click', showUserHistory))
 
   userEls.forEach(userEl => {
     const otherUserEls = userEls.filter(other => other !== userEl)
@@ -389,11 +423,12 @@ function fetchLatestValues() {
     const response = await fetch('/api/get-all')
     if (!response.ok) return
 
-    const { tunnels } = await response.json()
+    const { tunnels, users } = await response.json()
 
     setLoading(false)
 
     lastTunnelResponse = tunnels
+    lastUsersResponse = users
     renderTunnelCounts(tunnels)
 
     const intervalSeconds = 10
@@ -444,7 +479,7 @@ function addScoreAnimation(userEl) {
   const balloonSvgs = document.querySelector('[data-balloons]').children
   const confettiSvgs = document.querySelector('[data-confetti]').children
 
-  const userColor = getComputedStyle(userEl).borderLeftColor
+  const userColor = userColors[getUserElId(userEl)]
   const colors = [userColor, 'hsl(52, 100%, 50%)', 'hsl(32, 100%, 55%)']
 
   const createParticles = (particleSvgs, count, minDistance, maxDistance) => {
@@ -543,6 +578,52 @@ function showRules() {
 function hideRules() {
   history.replaceState({}, null, '/')
   rulesEl.classList.remove('active')
+}
+
+function showUserHistory(event) {
+  const { target } = event
+
+  const userEl = target.closest('[data-user]')
+  const userId = getUserElId(userEl)
+  const userTunnels = lastTunnelResponse.filter(tunnel => tunnel.by === userId)
+
+  const byNameEl = historyEl.querySelector('[data-by-name]')
+
+  byNameEl.innerHTML = getUserNameById(userId)
+  byNameEl.style.color = userColors[userId]
+
+  historyListEl.innerHTML = ''
+
+  userTunnels.forEach(tunnel => {
+    const tunnelDate = new Date(tunnel.date)
+    const againstName = getUserNameById(tunnel.against)
+
+    const tunnelEl = historyItemTemplate.cloneNode(true)
+
+    tunnelEl.removeAttribute('hidden')
+
+    const dateEl = tunnelEl.querySelector('[data-date]')
+    const nameEl = tunnelEl.querySelector('[data-against-name]')
+    const imageLegsEl = tunnelEl.querySelector('[data-image-legs]')
+
+    dateEl.innerHTML = `${tunnelDate.getDate()} ${
+      monthNames[tunnelDate.getMonth()]
+    }`
+    tunnelEl
+
+    nameEl.innerHTML = againstName
+    nameEl.style.color = userColors[tunnel.against]
+
+    imageLegsEl.src = `/images/legs_${againstName}--raised.png`
+
+    historyListEl.append(tunnelEl)
+  })
+
+  historyEl.classList.add('active')
+}
+
+function closeUserHistory() {
+  historyEl.classList.remove('active')
 }
 
 setupEventHandlers()

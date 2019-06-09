@@ -26,7 +26,11 @@
   <main>
     {{#each users}}
     <div class="user" data-user="{{id}}">
-      <h2 class="user__name">{{name}}</h2>
+      <h2 class="user__name">
+        {{name}}
+
+        <button class="user__history" data-open-history>Historik</button>
+      </h2>
 
       <div class="user__tunnels">
         <div class="user__tunnels-by">
@@ -71,6 +75,22 @@
       <h2>Regler</h2>
       {{> rules }}
     </div>
+  </div>
+
+  <div class="history" data-history>
+    <button class="history__close close" data-close-history></button>
+
+    <h2 class="history__title"><span class="history__title-name" data-by-name></span>'s skönheter</h2>
+
+    <ul class="history__list" data-history-list>
+      <li class="history__item" data-template hidden>
+        <div class="history__item-date" data-date></div>
+        <div class="history__item-title">På <span class="history__item-name" data-against-name></span></div>
+
+        <img class="history__item-legs" data-image-legs />
+        <img class="history__item-ball" src="/images/ball.png" />
+      </li>
+    </ul>
   </div>
 
 

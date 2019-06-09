@@ -41,9 +41,10 @@ self.addEventListener('fetch', event => {
             const requestPath = getRequestPath(request)
 
             const isApiRequest = requestPath.indexOf('/api/') === 0
+            const isRoot = requestPath === '/'
 
             const isMainResource =
-              !isApiRequest && precacheFiles.includes(requestPath)
+              !isApiRequest && !isRoot && precacheFiles.includes(requestPath)
 
             const isUpdatedContent =
               cachedResponse.headers.get('etag') !==
