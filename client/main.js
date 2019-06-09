@@ -585,7 +585,9 @@ function showUserHistory(event) {
 
   const userEl = target.closest('[data-user]')
   const userId = getUserElId(userEl)
-  const userTunnels = lastTunnelResponse.filter(tunnel => tunnel.by === userId)
+  const userTunnels = lastTunnelResponse
+    .filter(tunnel => tunnel.by === userId)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
 
   const byNameEl = historyEl.querySelector('[data-by-name]')
 
