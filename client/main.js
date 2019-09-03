@@ -544,6 +544,10 @@ function renderTimeLeft() {
   const endDate = new Date('2019-09-01T23:59:59')
   const timeLeft = endDate - new Date()
 
+  if (timeLeft < 0) {
+    timeLeftEl.innerHTML = 'Tunnelkampen är slut!!!'
+  }
+  
   const secondsLeft = timeLeft / 1000
   const minutesLeft = secondsLeft / 60
   const hoursLeft = minutesLeft / 60
