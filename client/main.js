@@ -546,6 +546,7 @@ function renderTimeLeft() {
 
   if (timeLeft < 0) {
     timeLeftEl.innerHTML = 'Tunnelkampen är slut!!!'
+    return
   }
   
   const secondsLeft = timeLeft / 1000
