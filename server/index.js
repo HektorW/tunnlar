@@ -42,6 +42,10 @@ app.use(bodyParser())
 
 app.use(async (ctx, next) => {
   if (ctx.method === 'POST' && ctx.path === '/api/add-tunnel') {
+    ctx.status = 403
+    ctx.body = 'Tunnelkampen is finished'
+    return
+
     const { byId, againstId, tunnelItem, subscriptionId } = ctx.request.body
 
     const [byUser, againstUser] = await Promise.all([
