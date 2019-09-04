@@ -26,6 +26,7 @@ const pageLoadNow = performance.now()
 let requestChain = Promise.resolve()
 let lastTunnelResponse = []
 let lastUsersResponse = []
+let hasEnded = false
 
 const { abs, floor, random, sin, cos, PI } = Math
 
@@ -291,7 +292,9 @@ function setupEventHandlers() {
         const byId = getUserElId(userEl)
         const againstId = getUserElId(hoveredEl)
 
-        addTunnel(byId, againstId)
+        if (!hasEnded) {
+          addTunnel(byId, againstId)
+        }
 
         hoveredEl.classList.add('drag-target', 'hovered')
         requestAnimationFrame(() => {
@@ -546,9 +549,10 @@ function renderTimeLeft() {
 
   if (timeLeft < 0) {
     timeLeftEl.innerHTML = 'Tunnelkampen är slut!!!'
+    hasEnded = true
     return
   }
-  
+
   const secondsLeft = timeLeft / 1000
   const minutesLeft = secondsLeft / 60
   const hoursLeft = minutesLeft / 60
