@@ -40,7 +40,7 @@
     "koa-router": "^7.4.0",
     "koa-static": "^4.0.3",
     "moment-timezone": "^0.5.25",
-    "node-fetch": "^1.6.3",
+    "node-fetch": "^2.6.7",
     "pg": "^7.9.0",
     "url-join": "^4.0.0",
     "web-push": "^3.3.3"
