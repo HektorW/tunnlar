@@ -39,7 +39,7 @@
     "koa-handlebars": "^2.0.0",
     "koa-router": "^7.4.0",
     "koa-static": "^4.0.3",
-    "moment-timezone": "^0.5.25",
+    "moment-timezone": "^0.5.35",
     "node-fetch": "^1.6.3",
     "pg": "^7.9.0",
     "url-join": "^4.0.0",
