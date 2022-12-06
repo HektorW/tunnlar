@@ -27,7 +27,7 @@
     "prettier": "^1.9.2"
   },
   "dependencies": {
-    "apollo-server-koa": "^2.4.8",
+    "apollo-server-koa": "^2.26.1",
     "bunyan": "^1.8.9",
     "cookie": "^0.3.1",
     "dotenv": "^4.0.0",
